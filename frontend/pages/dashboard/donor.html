@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('dashboard')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1>Hello, <span th:text="${d.donor.fullName}">Donor</span></h1>
+    <div class="sub">Your donor dashboard <span class="badge-demo" th:if="${d.donor.demo}" th:text="#{common.demo}">DEMO</span></div></div>
+    <a class="btn btn-ll" th:href="@{/camps}"><i class="bi bi-calendar-plus"></i> Find a donation camp</a></div>
+
+  <div class="row g-3">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value"><span class="blood-pill" th:text="${d.donor.bloodGroup.label}">O+</span></div><div class="stat-label mt-1">Your blood group</div></div><div class="stat-icon"><i class="bi bi-droplet-fill"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card navy"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.donationCount}">0</div><div class="stat-label">Donations recorded</div></div><div class="stat-icon"><i class="bi bi-heart-fill"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card green"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.bookedCount}">0</div><div class="stat-label">Booked appointments</div></div><div class="stat-icon"><i class="bi bi-calendar-check"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card amber"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value fs-5" th:text="${d.donor.lastDonationDate != null} ? ${d.donor.lastDonationDate} : 'Not provided'">-</div><div class="stat-label">Last donation date</div></div><div class="stat-icon"><i class="bi bi-clock-history"></i></div></div></div></div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-6">
+      <div class="card-ll h-100"><div class="card-header-ll">Eligibility guidance</div>
+        <div class="p-3">
+          <p class="mb-2" th:if="${d.nextReminder != null and d.nextReminder.isAfter(d.today)}">
+            <i class="bi bi-hourglass-split text-warning"></i> Your last donation was recorded on <b th:text="${d.donor.lastDonationDate}">date</b>.
+            LifeLink's reminder interval ends on <b th:text="${d.nextReminder}">date</b> (<span th:text="${d.intervalDays}">90</span> days after your last donation).</p>
+          <p class="mb-2" th:if="${d.nextReminder != null and !d.nextReminder.isAfter(d.today)}">
+            <i class="bi bi-check-circle text-success"></i> The reminder interval of <span th:text="${d.intervalDays}">90</span> days since your last recorded donation has passed. You may consider booking a camp.</p>
+          <p class="mb-2" th:if="${d.nextReminder == null}"><i class="bi bi-info-circle text-primary"></i> No previous donation is recorded. You can book a camp whenever one suits you.</p>
+          <div class="notice warn small"><i class="bi bi-shield-check"></i> This is only a reminder. Whether you are medically fit to donate is decided by the doctor or nurse at the blood bank on the day.</div>
+          <div class="mt-3"><span class="badge-soft success" th:if="${d.donor.verified}"><i class="bi bi-patch-check-fill"></i> Details verified by staff</span>
+            <span class="badge-soft warning" th:unless="${d.donor.verified}"><i class="bi bi-hourglass-split"></i> Not verified yet</span>
+            <span class="badge-soft" th:classappend="${d.donor.available} ? 'success' : 'secondary'" th:text="${d.donor.available} ? 'Available for contact' : 'Not available'">a</span></div>
+          <a class="btn btn-sm btn-outline-ll mt-3" th:href="@{/donor/profile}">Update my profile</a>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card-ll h-100"><div class="card-header-ll">Donation opportunities <a class="btn btn-sm btn-outline-ll" th:href="@{/camps}">All camps</a></div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" th:each="c, st : ${d.camps}" th:if="${st.index < 4}">
+            <div class="d-flex justify-content-between"><b th:text="${c.name}">Camp</b><span class="badge-demo" th:if="${c.demo}" th:text="#{common.demo}">DEMO</span></div>
+            <div class="small text-muted"><i class="bi bi-calendar-event"></i> <span th:text="${#temporals.format(c.campDate, 'dd MMM yyyy')}">d</span>, <span th:text="${#temporals.format(c.startTime, 'HH:mm')}">t</span>
+              &middot; <i class="bi bi-geo-alt"></i> <span th:text="${c.venue + ', ' + c.city}">v</span></div>
+          </li>
+          <li class="list-group-item text-muted text-center" th:if="${d.camps.isEmpty()}">No upcoming camps right now.</li>
+        </ul></div>
+    </div>
+  </div>
+
+  <div class="card-ll mt-3"><div class="card-header-ll">My recent activity <a class="btn btn-sm btn-outline-ll" th:href="@{/donor/history}">Full history</a></div>
+    <div class="table-responsive"><table class="table table-ll">
+      <thead><tr><th>Date</th><th>Component</th><th>Units</th><th>Location</th><th>Record</th></tr></thead>
+      <tbody>
+        <tr th:each="h, st : ${d.history}" th:if="${st.index < 5}">
+          <td th:text="${h.donationDate}">d</td><td th:text="${h.component.label}">c</td><td th:text="${h.units}">1</td><td th:text="${h.location}">l</td>
+          <td><span class="badge-soft success" th:if="${h.staffVerified}">Staff recorded</span><span class="badge-soft secondary" th:unless="${h.staffVerified}">Self-reported</span></td>
+        </tr>
+        <tr th:if="${d.history.isEmpty()}"><td colspan="5" class="text-center text-muted py-4">No donations recorded yet.</td></tr>
+      </tbody></table></div></div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

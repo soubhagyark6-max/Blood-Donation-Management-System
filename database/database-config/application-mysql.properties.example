@@ -1,0 +1,7 @@
+# These are the datasource settings used by backend/src/main/resources/application.properties.
+# You normally set the ${...} values in the .env file instead of editing the properties file.
+spring.datasource.url=${DB_URL:jdbc:mysql://localhost:3306/lifelink?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata}
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:}
+# update = create/update tables automatically; validate = only check (use after running schema.sql)
+spring.jpa.hibernate.ddl-auto=${DDL_AUTO:update}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Donation camps')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('camps')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1>Donation camps</h1><div class="sub" th:text="${isStaff} ? 'Manage camps and see registrations.' : 'Upcoming camps you can book.'">sub</div></div>
+    <a class="btn btn-ll" th:if="${isStaff}" th:href="@{/camps/new}"><i class="bi bi-plus-circle"></i> New camp</a></div>
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4" th:each="c : ${camps}">
+      <div class="card-ll hoverable p-3 h-100 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <h5 class="mb-1" th:text="${c.name}">Camp</h5>
+          <div class="text-end"><span class="badge-demo" th:if="${c.demo}" th:text="#{common.demo}">DEMO</span>
+            <span class="badge-soft secondary" th:unless="${c.active}">Cancelled</span></div></div>
+        <div class="small text-muted"><i class="bi bi-calendar-event"></i> <span th:text="${#temporals.format(c.campDate, 'dd MMM yyyy')}">d</span> &middot;
+          <span th:text="${#temporals.format(c.startTime, 'HH:mm') + ' - ' + #temporals.format(c.endTime, 'HH:mm')}">t</span></div>
+        <div class="small mt-1"><i class="bi bi-geo-alt-fill text-danger"></i> <span th:text="${c.venue + ', ' + c.city}">v</span></div>
+        <div class="small mt-1"><i class="bi bi-telephone"></i> <span th:text="${c.contactName + ' - ' + c.contactPhone}">c</span></div>
+        <p class="small text-muted mt-2" th:if="${c.description != null}" th:text="${c.description}">desc</p>
+        <div class="mt-auto pt-2">
+          <div class="small mb-2"><i class="bi bi-people"></i> <b th:text="${booked.get(c.id)}">0</b> / <span th:text="${c.capacity}">50</span> booked</div>
+          <div class="d-flex gap-2 flex-wrap no-print">
+            <form th:if="${!isStaff and c.active and currentUser.role.name() == 'DONOR'}" th:action="@{/camps/{id}/book(id=${c.id})}" method="post" class="m-0"><button class="btn btn-sm btn-ll" type="submit"><i class="bi bi-calendar-plus"></i> Book appointment</button></form>
+            <th:block th:if="${isStaff}">
+              <a class="btn btn-sm btn-navy" th:href="@{/camps/{id}/registrations(id=${c.id})}"><i class="bi bi-list-check"></i> Registrations</a>
+              <a class="btn btn-sm btn-outline-secondary" th:href="@{/camps/{id}/edit(id=${c.id})}"><i class="bi bi-pencil"></i></a>
+              <form th:action="@{/camps/{id}/toggle(id=${c.id})}" method="post" class="m-0" th:attr="data-confirm=${c.active} ? 'Cancel this camp?' : null">
+                <input type="hidden" name="active" th:value="${!c.active}">
+                <button class="btn btn-sm btn-outline-danger" type="submit" th:text="${c.active} ? 'Cancel camp' : 'Re-activate'">Cancel</button></form>
+            </th:block>
+          </div></div>
+      </div>
+    </div>
+    <div class="col-12" th:if="${camps.isEmpty()}"><div class="notice">No camps to show.</div></div>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

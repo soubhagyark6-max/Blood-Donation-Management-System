@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Donor')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('donors')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1><span th:text="${donor.fullName}">Donor</span> <span class="blood-pill" th:text="${donor.bloodGroup.label}">O+</span></h1>
+    <div class="sub">Donor #<span th:text="${donor.id}">1</span> <span class="badge-demo" th:if="${donor.demo}" th:text="#{common.demo}">DEMO</span></div></div>
+    <div class="d-flex gap-2 no-print">
+      <a class="btn btn-outline-secondary" th:href="@{/donors}"><i class="bi bi-arrow-left"></i> Back</a>
+      <a class="btn btn-navy" th:href="@{/donors/{id}/edit(id=${donor.id})}"><i class="bi bi-pencil"></i> Edit</a>
+      <form th:action="@{/donors/{id}/verify(id=${donor.id})}" method="post" class="m-0">
+        <input type="hidden" name="verified" th:value="${!donor.verified}">
+        <button class="btn" th:classappend="${donor.verified} ? 'btn-outline-secondary' : 'btn-ll'" type="submit">
+          <i class="bi bi-patch-check"></i> <span th:text="${donor.verified} ? 'Remove verification' : 'Mark details verified'">Verify</span></button>
+      </form></div></div>
+
+  <div class="row g-3">
+    <div class="col-lg-5"><div class="card-ll h-100"><div class="card-header-ll">Profile</div>
+      <dl class="row p-3 mb-0 small">
+        <dt class="col-5">Email</dt><dd class="col-7" th:text="${donor.email}">e</dd>
+        <dt class="col-5">Phone</dt><dd class="col-7" th:text="${donor.phone}">p</dd>
+        <dt class="col-5">Contact preference</dt><dd class="col-7" th:text="${donor.contactPreference.label}">c</dd>
+        <dt class="col-5">Date of birth</dt><dd class="col-7"><span th:text="${donor.dateOfBirth}">d</span> (<span th:text="${donor.age}">30</span> yrs)</dd>
+        <dt class="col-5">Gender</dt><dd class="col-7" th:text="${donor.gender.label}">g</dd>
+        <dt class="col-5">City</dt><dd class="col-7" th:text="${donor.city}">c</dd>
+        <dt class="col-5">Address</dt><dd class="col-7" th:text="${donor.address != null} ? ${donor.address} : '-'">a</dd>
+        <dt class="col-5">Availability</dt><dd class="col-7" th:text="${donor.available} ? 'Available' : 'Not available'">a</dd>
+        <dt class="col-5">Verification</dt><dd class="col-7"><span class="badge-soft success" th:if="${donor.verified}">Verified by staff</span><span class="badge-soft warning" th:unless="${donor.verified}">Not verified</span></dd>
+        <dt class="col-5">Last donation</dt><dd class="col-7"><span th:text="${donor.lastDonationDate != null} ? ${donor.lastDonationDate} : 'Not provided'">-</span>
+          <div class="text-muted" th:if="${nextReminder != null}" th:text="'Reminder interval (' + ${intervalDays} + ' days) ends ' + ${nextReminder}">r</div></dd>
+      </dl></div></div>
+
+    <div class="col-lg-7">
+      <div class="card-ll mb-3"><div class="card-header-ll">Record a donation <small class="text-muted fw-normal">staff entry</small></div>
+        <form class="p-3 needs-validation" novalidate th:action="@{/donors/{id}/donation(id=${donor.id})}" th:object="${donationForm}" method="post">
+          <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}"><span th:each="e : ${#fields.globalErrors()}" th:text="${e}">e</span></div>
+          <div class="row g-2">
+            <div class="col-md-4"><label class="form-label" for="donationDate">Date</label><input type="date" class="form-control" id="donationDate" th:field="*{donationDate}" th:errorclass="is-invalid" required>
+              <div class="invalid-msg" th:if="${#fields.hasErrors('donationDate')}" th:errors="*{donationDate}">e</div></div>
+            <div class="col-md-5"><label class="form-label" for="component">Component</label>
+              <select class="form-select" id="component" th:field="*{component}"><option th:each="c : ${components}" th:value="${c}" th:text="${c.label}">c</option></select></div>
+            <div class="col-md-3"><label class="form-label" for="units">Units</label><input type="number" min="1" max="4" class="form-control" id="units" th:field="*{units}" th:errorclass="is-invalid">
+              <div class="invalid-msg" th:if="${#fields.hasErrors('units')}" th:errors="*{units}">e</div></div>
+            <div class="col-md-6"><label class="form-label" for="location">Location (optional)</label><input class="form-control" id="location" th:field="*{location}"></div>
+            <div class="col-md-6"><label class="form-label" for="notes">Notes (optional)</label><input class="form-control" id="notes" th:field="*{notes}"></div>
+            <div class="col-md-6"><div class="form-check form-switch mt-2"><input class="form-check-input" type="checkbox" id="addToInventory" th:field="*{addToInventory}"><label class="form-check-label" for="addToInventory">Also add these units to inventory</label></div></div>
+            <div class="col-md-6"><label class="form-label" for="expiryDate">Expiry date (if added to stock)</label><input type="date" class="form-control" id="expiryDate" th:field="*{expiryDate}">
+              <div class="form-text">Empty = default shelf life for the component (editable).</div></div>
+          </div>
+          <button class="btn btn-ll mt-3" type="submit"><i class="bi bi-plus-circle"></i> Save donation</button>
+        </form></div>
+
+      <div class="card-ll"><div class="card-header-ll">Donation history</div>
+        <div class="table-responsive"><table class="table table-ll">
+          <thead><tr><th>Date</th><th>Component</th><th>Units</th><th>Location</th><th>Record</th></tr></thead>
+          <tbody>
+            <tr th:each="h : ${history}"><td th:text="${h.donationDate}">d</td><td th:text="${h.component.label}">c</td><td th:text="${h.units}">1</td><td th:text="${h.location}">l</td>
+              <td><span class="badge-soft success" th:if="${h.staffVerified}">Staff recorded</span><span class="badge-soft secondary" th:unless="${h.staffVerified}">Self-reported</span></td></tr>
+            <tr th:if="${history.isEmpty()}"><td colspan="5" class="text-center text-muted py-3">No donations recorded.</td></tr>
+          </tbody></table></div></div>
+    </div>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

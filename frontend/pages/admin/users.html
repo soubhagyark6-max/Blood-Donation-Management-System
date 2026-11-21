@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Users')}"></head>
+<body th:attr="data-open-modal=${openModal}">
+<nav th:replace="~{fragments/layout :: nav('users')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1>Users and staff</h1><div class="sub">Create staff accounts and enable or disable users.</div></div>
+    <button class="btn btn-ll" data-bs-toggle="modal" data-bs-target="#staffModal"><i class="bi bi-person-plus"></i> Add staff / admin</button></div>
+  <div class="card-ll"><div class="table-responsive"><table class="table table-ll align-middle">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>
+      <tr th:each="u : ${users}">
+        <td><span th:text="${u.fullName}">n</span> <span class="badge-demo" th:if="${u.demo}" th:text="#{common.demo}">DEMO</span></td>
+        <td th:text="${u.email}">e</td>
+        <td><span class="badge-soft primary" th:text="${u.role.label}">r</span></td>
+        <td><span class="badge-soft" th:classappend="${u.enabled} ? 'success' : 'secondary'" th:text="${u.enabled} ? 'Active' : 'Disabled'">s</span></td>
+        <td th:text="${#temporals.format(u.createdAt, 'dd MMM yyyy')}">d</td>
+        <td class="text-end"><form th:action="@{/admin/users/{id}/toggle(id=${u.id})}" method="post" class="m-0">
+          <input type="hidden" name="enabled" th:value="${!u.enabled}">
+          <button class="btn btn-sm" th:classappend="${u.enabled} ? 'btn-outline-danger' : 'btn-outline-success'" th:text="${u.enabled} ? 'Disable' : 'Enable'" type="submit">Disable</button></form></td>
+      </tr></tbody></table></div></div>
+</main>
+
+<div class="modal fade" id="staffModal" tabindex="-1" aria-labelledby="staffTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content" style="border-radius:16px">
+    <form th:action="@{/admin/users}" th:object="${form}" method="post" class="needs-validation" novalidate>
+      <div class="modal-header"><h5 class="modal-title" id="staffTitle">Create staff / admin account</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}"><span th:each="e : ${#fields.globalErrors()}" th:text="${e}">e</span></div>
+        <div class="mb-2"><label class="form-label" for="sn">Full name</label><input class="form-control" id="sn" th:field="*{fullName}" th:errorclass="is-invalid" required>
+          <div class="invalid-msg" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">e</div></div>
+        <div class="mb-2"><label class="form-label" for="se">Email</label><input type="email" class="form-control" id="se" th:field="*{email}" th:errorclass="is-invalid" required>
+          <div class="invalid-msg" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">e</div></div>
+        <div class="mb-2"><label class="form-label" for="sp">Temporary password</label><input type="password" class="form-control" id="sp" th:field="*{password}" th:errorclass="is-invalid" required autocomplete="new-password">
+          <div class="invalid-msg" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">e</div></div>
+        <div class="mb-2"><label class="form-label" for="sr">Role</label><select class="form-select" id="sr" th:field="*{role}"><option th:each="r : ${staffRoles}" th:value="${r}" th:text="${r.label}">r</option></select></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-ll">Create account</button></div>
+    </form></div></div></div>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

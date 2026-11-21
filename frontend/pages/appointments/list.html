@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My appointments')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('appointments')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1>My appointments</h1><div class="sub">Show the QR code or reference at the camp desk.</div></div>
+    <a class="btn btn-ll" th:href="@{/camps}"><i class="bi bi-calendar-plus"></i> Find camps</a></div>
+  <div class="row g-3">
+    <div class="col-md-6" th:each="a : ${appointments}">
+      <div class="card-ll p-3 h-100"><div class="d-flex gap-3 align-items-center">
+        <div th:if="${a.status.name() == 'BOOKED'}" class="qr-box"><div class="qr" th:attr="data-qr=${a.reference}"></div></div>
+        <div class="flex-fill">
+          <div class="d-flex justify-content-between"><h5 class="mb-1" th:text="${a.camp.name}">Camp</h5>
+            <span class="badge-soft" th:classappend="${a.status.badge}" th:text="${a.status.label}">s</span></div>
+          <div class="small text-muted"><i class="bi bi-calendar-event"></i> <span th:text="${#temporals.format(a.camp.campDate, 'dd MMM yyyy')}">d</span>, <span th:text="${#temporals.format(a.camp.startTime, 'HH:mm')}">t</span></div>
+          <div class="small"><i class="bi bi-geo-alt-fill text-danger"></i> <span th:text="${a.camp.venue + ', ' + a.camp.city}">v</span></div>
+          <div class="small mt-1">Reference: <code th:text="${a.reference}">LL-X</code></div>
+          <form class="mt-2" th:if="${a.status.name() == 'BOOKED'}" th:action="@{/appointments/{id}/cancel(id=${a.id})}" method="post" data-confirm="Cancel this appointment?">
+            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-x-circle"></i> Cancel</button></form>
+        </div></div></div>
+    </div>
+    <div class="col-12" th:if="${appointments.isEmpty()}"><div class="notice">You have no appointments yet. <a th:href="@{/camps}">Browse upcoming camps</a>.</div></div>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav('dashboard')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1 th:text="#{dash.title}">Dashboard</h1>
+    <div class="sub">Welcome, <b th:text="${currentUser.fullName}">User</b> - live figures from the database.</div></div>
+    <div class="d-flex gap-2 no-print">
+      <a class="btn btn-ll" th:href="@{/inventory}"><i class="bi bi-box-seam"></i> Inventory</a>
+      <a class="btn btn-navy" th:href="@{/requests}"><i class="bi bi-clipboard2-pulse"></i> Requests</a>
+      <button class="btn btn-outline-secondary" data-print><i class="bi bi-printer"></i></button>
+    </div></div>
+
+  <!-- alerts -->
+  <div class="row g-3 mb-3" th:if="${!d.lowStock.isEmpty() or !d.expiring.isEmpty()}">
+    <div class="col-lg-6" th:if="${!d.lowStock.isEmpty()}">
+      <div class="notice red h-100"><b><i class="bi bi-droplet-half"></i> Low stock</b>
+        <div class="small mt-1"><span th:each="l, st : ${d.lowStock}" th:if="${st.index < 8}">
+          <span class="blood-pill" th:text="${l.group().label}">A+</span> <span th:text="${l.component().label + ': ' + l.units()}">x</span>&nbsp;&nbsp;</span>
+          <span th:if="${d.lowStock.size() > 8}" th:text="'+ ' + ${d.lowStock.size() - 8} + ' more'">more</span></div></div></div>
+    <div class="col-lg-6" th:if="${!d.expiring.isEmpty()}">
+      <div class="notice warn h-100"><b><i class="bi bi-hourglass-split"></i> Expiring soon</b>
+        <div class="small mt-1" th:each="b, st : ${d.expiring}" th:if="${st.index < 3}">
+          <span th:text="${b.bloodGroup.label + ' ' + b.component.label + ' - ' + b.units + ' unit(s), batch ' + b.batchCode + ', expires ' + b.expiryDate}">x</span></div></div></div>
+  </div>
+
+  <!-- summary cards -->
+  <div class="row g-3">
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.donorCount}">0</div><div class="stat-label">Registered donors</div></div><div class="stat-icon"><i class="bi bi-people-fill"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card navy"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.requestCount}">0</div><div class="stat-label">Total blood requests</div></div><div class="stat-icon"><i class="bi bi-clipboard2-pulse"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card amber"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.pendingCount}">0</div><div class="stat-label">Pending requests <span class="text-muted" th:text="'(+' + ${d.reviewCount} + ' under review)'"></span></div></div><div class="stat-icon"><i class="bi bi-hourglass-split"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card green"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.fulfilledCount}">0</div><div class="stat-label">Fulfilled requests</div></div><div class="stat-icon"><i class="bi bi-check2-circle"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.totalUnits}">0</div><div class="stat-label">Usable units in stock</div></div><div class="stat-icon"><i class="bi bi-droplet-fill"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card navy"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.lowStock.size()}">0</div><div class="stat-label">Low-stock groups</div></div><div class="stat-icon"><i class="bi bi-exclamation-triangle"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card amber"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.upcomingCamps}">0</div><div class="stat-label">Upcoming camps</div></div><div class="stat-icon"><i class="bi bi-calendar-event"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card green"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-value" th:text="${d.expiring.size()}">0</div><div class="stat-label">Batches expiring soon</div></div><div class="stat-icon"><i class="bi bi-hourglass"></i></div></div></div></div>
+  </div>
+
+  <!-- units by component -->
+  <div class="row g-3 mt-1">
+    <div class="col-6 col-lg-3" th:each="e : ${d.unitsByComponent}">
+      <div class="card-ll p-3"><div class="small text-muted" th:text="${e.key.label}">Component</div><div class="h4 mb-0" th:text="${e.value} + ' units'">0</div></div>
+    </div>
+  </div>
+
+  <!-- charts -->
+  <div class="row g-3 mt-1">
+    <div class="col-lg-6"><div class="card-ll"><div class="card-header-ll">Donors by blood group</div><div class="p-3"><div class="chart-box"><canvas id="chGroups" aria-label="Donors by blood group"></canvas></div></div></div></div>
+    <div class="col-lg-6"><div class="card-ll"><div class="card-header-ll">Requests by status</div><div class="p-3"><div class="chart-box"><canvas id="chStatus" aria-label="Requests by status"></canvas></div></div></div></div>
+    <div class="col-lg-6"><div class="card-ll"><div class="card-header-ll">Inventory by component <small class="text-muted fw-normal">(usable units)</small></div><div class="p-3"><div class="chart-box"><canvas id="chComp" aria-label="Inventory by component"></canvas></div></div></div></div>
+    <div class="col-lg-6"><div class="card-ll"><div class="card-header-ll">Monthly activity <small class="text-muted fw-normal">(last 6 months)</small></div><div class="p-3"><div class="chart-box"><canvas id="chMonth" aria-label="Monthly activity"></canvas></div></div></div></div>
+    <div class="col-12"><div class="card-ll"><div class="card-header-ll">Usable stock by blood group</div><div class="p-3"><div class="chart-box"><canvas id="chInvGroup" aria-label="Stock by blood group"></canvas></div></div></div></div>
+  </div>
+
+  <!-- recent activity -->
+  <div class="row g-3 mt-1">
+    <div class="col-lg-7"><div class="card-ll"><div class="card-header-ll">Recent blood requests <a class="btn btn-sm btn-outline-ll" th:href="@{/requests}">All</a></div>
+      <div class="table-responsive"><table class="table table-ll align-middle">
+        <thead><tr><th>#</th><th>Group</th><th>Component</th><th>Units</th><th>Urgency</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr th:each="r : ${d.recentRequests}" th:classappend="${r.urgency.name() == 'EMERGENCY' and r.status.open} ? 'row-emergency'">
+            <td><a th:href="@{/requests/{id}(id=${r.id})}" th:text="'#' + ${r.id}">#1</a> <span class="badge-demo" th:if="${r.demo}" th:text="#{common.demo}">DEMO</span></td>
+            <td><span class="blood-pill" th:text="${r.bloodGroup.label}">A+</span></td>
+            <td th:text="${r.component.label}">c</td><td th:text="${r.units}">1</td>
+            <td><span class="badge-soft" th:classappend="${r.urgency.badge}" th:text="${r.urgency.label}">u</span></td>
+            <td><span class="badge-soft" th:classappend="${r.status.badge}" th:text="${r.status.label}">s</span></td>
+          </tr>
+          <tr th:if="${d.recentRequests.isEmpty()}"><td colspan="6" class="text-center text-muted py-4">No requests yet.</td></tr>
+        </tbody></table></div></div></div>
+    <div class="col-lg-5"><div class="card-ll"><div class="card-header-ll">Recent stock movements <a class="btn btn-sm btn-outline-ll" th:href="@{/inventory/history}">All</a></div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center" th:each="t, st : ${d.recentTransactions}" th:if="${st.index < 8}">
+          <div><span class="badge-soft" th:classappend="${t.type.badge}" th:text="${t.type.label}">t</span>
+            <span class="ms-1" th:text="${t.units + ' x ' + t.bloodGroup.label + ' ' + t.component.label}">x</span></div>
+          <small class="text-muted" th:text="${#temporals.format(t.createdAt, 'dd MMM HH:mm')}">time</small>
+        </li>
+        <li class="list-group-item text-muted text-center" th:if="${d.recentTransactions.isEmpty()}">No stock movements yet.</li>
+      </ul></div></div>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var groupLabels = /*[[${d.groupLabels}]]*/ [];
+  var groupValues = /*[[${d.groupValues}]]*/ [];
+  var statusLabels = /*[[${d.statusLabels}]]*/ [];
+  var statusValues = /*[[${d.statusValues}]]*/ [];
+  var compLabels = /*[[${d.componentLabels}]]*/ [];
+  var compValues = /*[[${d.componentValues}]]*/ [];
+  var monthLabels = /*[[${d.monthLabels}]]*/ [];
+  var monthRequests = /*[[${d.monthRequests}]]*/ [];
+  var monthDonations = /*[[${d.monthDonations}]]*/ [];
+  var invGroupLabels = /*[[${d.invGroupLabels}]]*/ [];
+  var invGroupValues = /*[[${d.invGroupValues}]]*/ [];
+  /*]]>*/
+  LL.chart('chGroups', { type: 'bar', data: { labels: groupLabels, datasets: [{ label: 'Donors', data: groupValues, backgroundColor: LL.colors.red, borderRadius: 8 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+  LL.chart('chStatus', { type: 'doughnut', data: { labels: statusLabels, datasets: [{ data: statusValues, backgroundColor: ['#f0a30a', '#0b8aa4', '#123862', '#1b9e5a', '#c8102e', '#9aa7b8'] }] },
+    options: { plugins: { legend: { position: 'right' } }, cutout: '62%' } });
+  LL.chart('chComp', { type: 'pie', data: { labels: compLabels, datasets: [{ data: compValues, backgroundColor: [LL.colors.red, LL.colors.navy, LL.colors.amber, LL.colors.light] }] },
+    options: { plugins: { legend: { position: 'right' } } } });
+  LL.chart('chMonth', { type: 'line', data: { labels: monthLabels, datasets: [
+      { label: 'Requests', data: monthRequests, borderColor: LL.colors.red, backgroundColor: 'rgba(200,16,46,.12)', fill: true, tension: .35 },
+      { label: 'Donations', data: monthDonations, borderColor: LL.colors.navy, backgroundColor: 'rgba(18,56,98,.10)', fill: true, tension: .35 } ] },
+    options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+  LL.chart('chInvGroup', { type: 'bar', data: { labels: invGroupLabels, datasets: [{ label: 'Usable units', data: invGroupValues, backgroundColor: LL.colors.navy, borderRadius: 8 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
+</script>
+</body>
+</html>

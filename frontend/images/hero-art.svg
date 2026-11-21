@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 440" role="img" aria-label="Illustration: a blood drop with a heart and a donor bag">
+  <defs>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff4d67"/>
+      <stop offset="1" stop-color="#b30c28"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dfe8f5"/>
+    </linearGradient>
+  </defs>
+  <circle cx="240" cy="220" r="190" fill="#ffffff" opacity=".08"/>
+  <circle cx="240" cy="220" r="140" fill="#ffffff" opacity=".08"/>
+  <!-- big drop -->
+  <path d="M240 40C240 40 120 190 120 275a120 120 0 0 0 240 0C360 190 240 40 240 40z" fill="url(#drop)"/>
+  <path d="M170 275c0-30 14-58 36-92" stroke="#fff" stroke-opacity=".45" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <!-- cross -->
+  <path d="M240 215v100M190 265h100" stroke="#fff" stroke-width="22" stroke-linecap="round"/>
+  <!-- heart -->
+  <path d="M392 120c-14-22-46-8-40 16 5 20 40 40 40 40s35-20 40-40c6-24-26-38-40-16z" fill="#ffffff" opacity=".95"/>
+  <!-- blood bag -->
+  <g transform="translate(24 250) rotate(-8)">
+    <rect x="0" y="0" width="86" height="120" rx="18" fill="url(#bag)"/>
+    <rect x="12" y="52" width="62" height="56" rx="10" fill="#d8223e"/>
+    <rect x="30" y="-14" width="26" height="18" rx="5" fill="#9fb2cc"/>
+    <path d="M43 -14v-20" stroke="#9fb2cc" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <!-- small drops -->
+  <path d="M410 300c0 0-18 22-18 34a18 18 0 0 0 36 0c0-12-18-34-18-34z" fill="#ff7388"/>
+  <path d="M80 130c0 0-12 15-12 24a12 12 0 0 0 24 0c0-9-12-24-12-24z" fill="#ff7388" opacity=".85"/>
+</svg>

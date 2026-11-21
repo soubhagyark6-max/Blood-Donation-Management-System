@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Donation camp')}"></head>
+<body th:attr="data-open-modal=${openModal}">
+<nav th:replace="~{fragments/layout :: nav('camps')}"></nav>
+<div th:replace="~{fragments/layout :: flash}"></div>
+<main class="container pb-4">
+  <div class="page-head"><div><h1 th:text="${editing} ? 'Edit donation camp' : 'New donation camp'">Camp</h1></div></div>
+  <div class="row justify-content-center"><div class="col-lg-9">
+  <div class="card-ll p-4">
+    <form th:action="${editing} ? @{/camps/{id}/edit(id=${campId})} : @{/camps/new}" th:object="${form}" method="post" class="needs-validation" novalidate>
+      <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}">
+  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+  <span th:each="e : ${#fields.globalErrors()}" th:text="${e}">Error</span>
+</div>
+
+      <div class="row g-3">
+        <div class="col-12">
+  <label class="form-label" for="name">Camp name</label>
+  <input type="text" class="form-control" id="name" th:field="*{name}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">error</div>
+</div>
+
+        <div class="col-md-4">
+  <label class="form-label" for="campDate">Date</label>
+  <input type="date" class="form-control" id="campDate" th:field="*{campDate}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('campDate')}" th:errors="*{campDate}">error</div>
+</div>
+
+        <div class="col-md-4">
+  <label class="form-label" for="startTime">Start time</label>
+  <input type="time" class="form-control" id="startTime" th:field="*{startTime}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}">error</div>
+</div>
+
+        <div class="col-md-4">
+  <label class="form-label" for="endTime">End time</label>
+  <input type="time" class="form-control" id="endTime" th:field="*{endTime}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}">error</div>
+</div>
+
+        <div class="col-md-6">
+  <label class="form-label" for="venue">Venue</label>
+  <input type="text" class="form-control" id="venue" th:field="*{venue}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('venue')}" th:errors="*{venue}">error</div>
+</div>
+
+        <div class="col-md-6">
+  <label class="form-label" for="city">City</label>
+  <input type="text" class="form-control" id="city" th:field="*{city}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('city')}" th:errors="*{city}">error</div>
+</div>
+
+        <div class="col-md-6">
+  <label class="form-label" for="contactName">Contact person</label>
+  <input type="text" class="form-control" id="contactName" th:field="*{contactName}" th:errorclass="is-invalid" required >
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('contactName')}" th:errors="*{contactName}">error</div>
+</div>
+
+        <div class="col-md-6">
+  <label class="form-label" for="contactPhone">Contact phone</label>
+  <input type="tel" class="form-control" id="contactPhone" th:field="*{contactPhone}" th:errorclass="is-invalid" required maxlength="10" pattern="[6-9][0-9]{9}" inputmode="numeric">
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('contactPhone')}" th:errors="*{contactPhone}">error</div>
+</div>
+
+        <div class="col-md-4">
+  <label class="form-label" for="capacity">Capacity (max bookings)</label>
+  <input type="number" class="form-control" id="capacity" th:field="*{capacity}" th:errorclass="is-invalid" required min="1" max="2000">
+  
+  <div class="invalid-msg" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}">error</div>
+</div>
+
+        <div class="col-md-8">
+  <label class="form-label" for="description">Description (optional)</label>
+  <textarea class="form-control" id="description" rows="2" th:field="*{description}" th:errorclass="is-invalid"></textarea>
+  <div class="invalid-msg" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">error</div>
+</div>
+
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-ll" type="submit"><i class="bi bi-save"></i> Save camp</button>
+        <a class="btn btn-outline-secondary" th:href="@{/camps}">Cancel</a>
+      </div>
+    </form>
+  </div></div></div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
