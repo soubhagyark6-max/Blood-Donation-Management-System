@@ -1,0 +1,21 @@
+flowchart TD
+  A([Start]) --> B[Open LifeLink home page]
+  B --> C{Has account?}
+  C -- No --> D[Register as Donor or Recipient]
+  D --> E[Validation and duplicate check]
+  E -- Invalid --> D
+  E -- OK --> F[Account saved with BCrypt hash]
+  F --> G[Login]
+  C -- Yes --> G
+  G --> H{Credentials valid and account enabled?}
+  H -- No --> G
+  H -- Yes --> I{Role}
+  I -- Admin --> J[Admin dashboard: users, audit log, all staff functions]
+  I -- Staff --> K[Staff dashboard: requests, inventory, donors, camps, reports]
+  I -- Donor --> L[Donor dashboard: profile, history, camps, appointments]
+  I -- Recipient --> M[Recipient dashboard: create and track requests]
+  J --> N[Logout]
+  K --> N
+  L --> N
+  M --> N
+  N --> O([End])

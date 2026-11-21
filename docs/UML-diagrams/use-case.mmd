@@ -1,0 +1,33 @@
+flowchart LR
+  subgraph G1["Donor"]
+    direction TB
+    D([Donor]):::actor --- d1(Register and log in)
+    D --- d2(Manage profile and availability)
+    D --- d3(Record own donation history)
+    D --- d4(Book or cancel camp appointment, get QR)
+    D --- d5(View camps and eligibility guidance)
+  end
+  subgraph G2["Recipient"]
+    direction TB
+    R([Recipient]):::actor --- r1(Register and log in)
+    R --- r2(Create blood request)
+    R --- r3(Track status and history)
+    R --- r4(Edit or cancel a pending request)
+  end
+  subgraph G3["Blood Bank Staff"]
+    direction TB
+    S([Staff]):::actor --- s1(Review and update request status)
+    S --- s2(Receive, issue and discard stock)
+    S --- s3(Suggest donors - preliminary matching)
+    S --- s4(View donors, verify, record donations)
+    S --- s5(Manage camps and registrations)
+    S --- s6(Reports and CSV export)
+  end
+  subgraph G4["Administrator"]
+    direction TB
+    A([Admin]):::actor --- a1(All staff functions)
+    A --- a2(Manage staff and user accounts)
+    A --- a3(View audit log)
+    A --- a4(Dashboards and analytics)
+  end
+  classDef actor fill:#fdecef,stroke:#c8102e,color:#0a2342;

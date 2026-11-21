@@ -1,0 +1,15 @@
+flowchart TB
+  subgraph Browser["Browser (Bootstrap 5, Chart.js, JavaScript)"]
+    UI["Thymeleaf-rendered HTML pages"]
+  end
+  subgraph App["Spring Boot 3 application (Java 21)"]
+    SEC["Spring Security<br/>BCrypt - CSRF - role rules"]
+    CTRL["Controllers (Spring MVC)"]
+    SVC["Services (@Transactional)<br/>business rules"]
+    REPO["Spring Data JPA repositories"]
+    SEC --> CTRL --> SVC --> REPO
+  end
+  DB[("MySQL 8<br/>Hibernate / JPA")]
+  UI -- "HTTP + CSRF token" --> SEC
+  REPO --> DB
+  SVC -. "in-app notifications<br/>audit log" .-> DB

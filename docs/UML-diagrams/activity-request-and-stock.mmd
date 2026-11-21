@@ -1,0 +1,27 @@
+flowchart TD
+  S([Start]) --> A[Recipient submits blood request]
+  A --> V{Form valid?}
+  V -- No --> A
+  V -- Yes --> P[Status = Pending, staff notified]
+  P --> U{Urgency Emergency?}
+  U -- Yes --> E[Highlight red, list first, emergency alert]
+  U -- No --> R
+  E --> R[Staff reviews request]
+  R --> D{Decision}
+  D -- Reject --> RM{Remark given?}
+  RM -- No --> R
+  RM -- Yes --> RJ[Status = Rejected, requester notified]
+  D -- Under review --> UR[Status = Under Review] --> R
+  D -- Approve --> AP[Status = Approved]
+  AP --> F{Mark fulfilled?}
+  F -- No --> AP
+  F -- Yes --> ST{Enough usable stock of same group and component?}
+  ST -- No --> ERR[Error shown, status stays Approved]
+  ERR --> AP
+  ST -- Yes --> ISS[Issue units, earliest expiry first, log transaction]
+  ISS --> FU[Status = Fulfilled, requester notified]
+  FU --> LS{Stock below threshold?}
+  LS -- Yes --> AL[Low-stock alert to staff]
+  LS -- No --> X
+  AL --> X([End])
+  RJ --> X

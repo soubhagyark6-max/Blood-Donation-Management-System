@@ -1,0 +1,20 @@
+flowchart TD
+  S([Start]) --> L[Donor logs in]
+  L --> C[Open Camps page]
+  C --> SEL[Select an upcoming camp]
+  SEL --> CK{Camp active, date not passed?}
+  CK -- No --> X1[Show error]
+  CK -- Yes --> DUP{Already booked this camp?}
+  DUP -- Yes --> X1
+  DUP -- No --> CAP{Capacity left?}
+  CAP -- No --> X1
+  CAP -- Yes --> BK[Create appointment with unique reference]
+  BK --> N[Notification sent in-app]
+  N --> QR[My Appointments shows QR code]
+  QR --> D{Donor can attend?}
+  D -- No --> CN[Cancel appointment]
+  D -- Yes --> AT[Staff marks Attended or No-show at camp]
+  AT --> REC[Staff records donation and optionally adds units to stock]
+  REC --> E([End])
+  CN --> E
+  X1 --> E

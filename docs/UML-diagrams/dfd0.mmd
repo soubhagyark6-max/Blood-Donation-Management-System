@@ -1,0 +1,9 @@
+flowchart LR
+  D([Donor]) -- "registration, profile, appointments" --> P((LifeLink<br/>System))
+  P -- "notifications, camps, history" --> D
+  R([Recipient]) -- "blood requests" --> P
+  P -- "request status, remarks" --> R
+  S([Blood Bank Staff]) -- "stock updates, status decisions, camps" --> P
+  P -- "alerts, donor shortlist, reports" --> S
+  A([Admin]) -- "user management" --> P
+  P -- "dashboards, audit log" --> A

@@ -1,0 +1,67 @@
+erDiagram
+  USERS ||--o| DONORS : "has profile"
+  USERS ||--o{ BLOOD_REQUESTS : creates
+  USERS ||--o{ NOTIFICATIONS : receives
+  USERS ||--o{ DONATIONS : "records (staff)"
+  DONORS ||--o{ DONATIONS : gives
+  DONORS ||--o{ APPOINTMENTS : books
+  DONATION_CAMPS ||--o{ APPOINTMENTS : has
+  BLOOD_REQUESTS ||--o{ REQUEST_STATUS_HISTORY : tracks
+  BLOOD_INVENTORY ||--o{ INVENTORY_TRANSACTIONS : "logged by batch_code"
+  BLOOD_REQUESTS ||--o{ INVENTORY_TRANSACTIONS : "issues stock (request_id)"
+  USERS { bigint id PK
+    varchar email UK
+    varchar password_hash
+    varchar role }
+  DONORS { bigint id PK
+    bigint user_id FK
+    varchar email UK
+    varchar phone UK
+    varchar blood_group
+    varchar city
+    date last_donation_date
+    bit available
+    bit verified }
+  DONATIONS { bigint id PK
+    bigint donor_id FK
+    date donation_date
+    varchar component
+    int units }
+  BLOOD_REQUESTS { bigint id PK
+    bigint requester_id FK
+    varchar blood_group
+    varchar component
+    int units
+    varchar urgency
+    varchar status }
+  REQUEST_STATUS_HISTORY { bigint id PK
+    bigint request_id FK
+    varchar status
+    varchar remarks }
+  BLOOD_INVENTORY { bigint id PK
+    varchar batch_code
+    varchar blood_group
+    varchar component
+    int units
+    date expiry_date }
+  INVENTORY_TRANSACTIONS { bigint id PK
+    varchar type
+    int units
+    varchar batch_code
+    bigint request_id }
+  DONATION_CAMPS { bigint id PK
+    varchar name
+    date camp_date
+    int capacity }
+  APPOINTMENTS { bigint id PK
+    bigint donor_id FK
+    bigint camp_id FK
+    varchar reference UK
+    varchar status }
+  NOTIFICATIONS { bigint id PK
+    bigint user_id FK
+    varchar type
+    bit read_flag }
+  AUDIT_LOGS { bigint id PK
+    varchar actor
+    varchar action }

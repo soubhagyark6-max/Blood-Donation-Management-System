@@ -1,0 +1,36 @@
+sequenceDiagram
+  actor Rec as Recipient
+  actor Staff as Blood Bank Staff
+  participant UI as Browser (Thymeleaf pages)
+  participant RC as RequestController
+  participant RS as RequestService
+  participant IS as InventoryService
+  participant NS as NotificationService
+  participant DB as MySQL
+
+  Rec->>UI: Fill and submit blood request form
+  UI->>RC: POST /requests/new (with CSRF token)
+  RC->>RC: Validate form (@Valid)
+  RC->>RS: create(form, user)
+  RS->>DB: save request + status history (Pending)
+  RS->>NS: notifyStaff (emergency or new request)
+  NS->>DB: save notifications
+  RC-->>UI: redirect to request details
+
+  Staff->>UI: Choose status Approved, then Fulfilled
+  UI->>RC: POST /requests/{id}/status
+  RC->>RS: changeStatus(id, form, staff)
+  RS->>RS: check role and allowed transition
+  alt Fulfilled
+    RS->>IS: issue(group, component, units)
+    IS->>DB: lock usable batches, deduct earliest expiry first
+    IS->>DB: save ISSUED transactions
+    alt not enough stock
+      IS-->>RS: BusinessException (transaction rolls back)
+      RS-->>RC: error message
+      RC-->>UI: show error, status unchanged
+    end
+  end
+  RS->>DB: update status + history entry
+  RS->>NS: notify requester
+  RC-->>UI: redirect with success message

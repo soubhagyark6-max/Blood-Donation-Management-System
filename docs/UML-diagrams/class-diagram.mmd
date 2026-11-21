@@ -1,0 +1,29 @@
+classDiagram
+  class User { Long id; String fullName; String email; String passwordHash; Role role; boolean enabled }
+  class Donor { Long id; String fullName; String email; String phone; LocalDate dateOfBirth; BloodGroup bloodGroup; String city; LocalDate lastDonationDate; boolean available; boolean verified; ContactPreference contactPreference }
+  class Donation { Long id; LocalDate donationDate; ComponentType component; int units; boolean staffVerified }
+  class BloodRequest { Long id; String patientReference; BloodGroup bloodGroup; ComponentType component; int units; String hospital; Urgency urgency; RequestStatus status; String staffRemarks }
+  class RequestStatusHistory { Long id; RequestStatus status; String remarks; String changedBy; LocalDateTime changedAt }
+  class BloodInventory { Long id; String batchCode; BloodGroup bloodGroup; ComponentType component; int units; LocalDate collectionDate; LocalDate expiryDate }
+  class InventoryTransaction { Long id; TxType type; BloodGroup bloodGroup; ComponentType component; int units; String batchCode }
+  class DonationCamp { Long id; String name; LocalDate campDate; String venue; int capacity; boolean active }
+  class Appointment { Long id; String reference; AppointmentStatus status }
+  class Notification { Long id; NotificationType type; String message; boolean read }
+  class AuditLog { Long id; String actor; String action; String details }
+  User "1" --> "0..1" Donor
+  Donor "1" --> "*" Donation
+  User "1" --> "*" BloodRequest : requests
+  BloodRequest "1" --> "*" RequestStatusHistory
+  Donor "1" --> "*" Appointment
+  DonationCamp "1" --> "*" Appointment
+  User "1" --> "*" Notification
+  class InventoryService { receive(); issue(); discardExpired(); lowStock(); expiringSoon() }
+  class RequestService { create(); update(); cancel(); changeStatus(); search() }
+  class DonorService { search(); updateProfile(); setVerified(); matchFor() }
+  class AppointmentService { book(); cancel(); mark() }
+  RequestService ..> InventoryService : issues stock on Fulfilled
+  RequestService ..> BloodRequest
+  InventoryService ..> BloodInventory
+  InventoryService ..> InventoryTransaction
+  DonorService ..> Donor
+  AppointmentService ..> Appointment

@@ -1,0 +1,24 @@
+flowchart TB
+  D([Donor]) --> P1((1.0 Authenticate<br/>and register))
+  R([Recipient]) --> P1
+  P1 <--> D1[(D1 Users / Donors)]
+  R --> P2((2.0 Manage<br/>blood requests))
+  P2 <--> D2[(D2 Requests + History)]
+  S([Staff]) --> P3((3.0 Review<br/>requests))
+  P3 <--> D2
+  P3 --> P4((4.0 Manage<br/>inventory))
+  S --> P4
+  P4 <--> D3[(D3 Inventory + Transactions)]
+  D --> P5((5.0 Camps and<br/>appointments))
+  S --> P5
+  P5 <--> D4[(D4 Camps / Appointments)]
+  P3 --> P6((6.0 Notify))
+  P4 --> P6
+  P5 --> P6
+  P6 <--> D5[(D5 Notifications)]
+  P2 --> P7((7.0 Audit))
+  P3 --> P7
+  P4 --> P7
+  P7 <--> D6[(D6 Audit log)]
+  S --> P8((8.0 Dashboards<br/>and reports))
+  P8 --> D2 & D3 & D1 & D4

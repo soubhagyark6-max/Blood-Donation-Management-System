@@ -1,0 +1,13 @@
+stateDiagram-v2
+  [*] --> Pending : recipient submits
+  Pending --> Cancelled : recipient cancels
+  Pending --> UnderReview : staff
+  Pending --> Approved : staff
+  Pending --> Rejected : staff (remark required)
+  UnderReview --> Approved : staff
+  UnderReview --> Rejected : staff (remark required)
+  Approved --> Fulfilled : staff - stock issued in same transaction
+  Approved --> Rejected : staff (remark required)
+  Fulfilled --> [*]
+  Rejected --> [*]
+  Cancelled --> [*]

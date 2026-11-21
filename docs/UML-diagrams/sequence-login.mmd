@@ -1,0 +1,20 @@
+sequenceDiagram
+  actor U as User
+  participant B as Browser
+  participant SF as Spring Security filter chain
+  participant UDS as AppUserDetailsService
+  participant DB as MySQL
+  U->>B: Enter email and password
+  B->>SF: POST /login (CSRF token)
+  SF->>UDS: loadUserByUsername(email)
+  UDS->>DB: find user by email
+  DB-->>UDS: user with BCrypt hash, role, enabled
+  UDS-->>SF: UserDetails
+  SF->>SF: BCrypt matches(password, hash)
+  alt valid and enabled
+    SF-->>B: session cookie, redirect /dashboard
+    B->>SF: GET /dashboard
+    SF-->>B: dashboard for the role
+  else invalid or disabled
+    SF-->>B: redirect /login?error
+  end
